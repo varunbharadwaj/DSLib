@@ -1,0 +1,170 @@
+DSLIB:
+#include "dslib.h" // include this in the client file
+
+-----------------------------------------------------------------------------------------------------------------------------
+Dictionary:
+	Available Functions:
+	
+	1. Dict(type1,type2)              -  type of dictionary
+	2. new_Dict(type1,type2,size)  	  -  size => size of hashset
+	3. add(dictionary,key,value)	  -  insert (key,value) pair , overwrites if key exists
+	4. remove(dictionary,key)         -  delete (key,value) pair , returns 1 if successful , 0 otherwise
+	5. get(dictionary,key)            -  returns value of the key 
+	6. getSize(dictionary)			  -  returns number of (key,value) pairs in the dictionary  (return type => long)
+	7. find(dictionary,key)           -  returns 1 if key is present , 0 otherwise
+	8. free_ds(dictionary)            -  free memory allocated to dictionary
+	9. getDictKeys(dictionary)        -  returns array of keys (in random order) , user must free the returned pointer 
+	
+Sample Code:
+
+#include <stdio.h>
+#include "dslib.h"
+
+Dict_declare(int,int);
+int main()
+{
+	Dict(int,int) d = new_Dict(int,int,10); // 10 is the size of the hashset
+	add(d,10,1);							// 10,1 added to dictionary d
+	add(d,30,2);	
+	if(find(d,10))
+		printf("key=10 value=%d\n",get(d,10));	
+	printf("size = %ld\n",getSize(d));	
+	remove(d,14);
+	free_ds(d);
+}
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+Set:
+Available Functions:
+	
+	1. Set(type)              	-  type of set
+	2. new_Set(type, size)  	-  size => size of hashset
+	3. add(set, value)	  		-  insert value , repetition not allowed , ignores repeated values
+	4. remove(set, value)        -  delete value , returns 1 if successful , 0 otherwise
+	5. getSize(set)        		-  returns number of elements  (return type => long)
+	6. find(set, value)         	-  returns 1 if value is present , 0 otherwise
+	7. free_ds(set)         	-  free memory allocated to set
+	8. getSetValues(set)        -  returns array of values (in random order) , user must free the returned pointer 
+	9. union(set1, set2)			-  creates and returns a new set which is a union of the 2 sets
+	10. intersection(set1, set2) -  creates and returns a new set which is an intersection of the 2 sets
+	11. duplicate(set)          -  creates and returns a new set 
+	
+Sample Code:
+
+Set_declare(int);
+int main()
+{
+	Set(int) d = new_Set(int,10);
+	printf("size = %ld\n",getSize(d));
+	add(d,1);
+	add(d,2);	
+	if(find(d,1))
+		printf("1\n");	
+	remove(d,5);
+	if(find(d,1))
+		printf("1\n");
+	int* arr = getSetValues(d);
+	int i;
+	for(i=0;i<getSize(d);i++)
+		printf("%d ",arr[i]);
+	free(arr);
+	free_ds(d);
+
+}
+-----------------------------------------------------------------------------------------------------------------------------
+
+
+For user-defined types as keys in set and dictionary:
+Write a hash function and comparator function before ds_declare() as follows-
+
+int cmp_type(type a, type b)
+{
+	return 0 if a and b are equal, 1 otherwise
+}
+
+long hash_type(type a, long size)
+{
+	return (any value got using a ) % size
+}
+
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+List:
+Available Functions:
+	
+	1. List(type)              			-  type of list
+	2. new_List(type)					-  create list of type, no size defined
+	3. insert_head(list, value)	  		-  insert head node of req type
+	4. insert_tail(list, value)     	-  insert tail node of req type
+	5. insert(list, value, position)	-  insert node of req type at req position
+	6. replace(list, value, position)	-  replace a node with a node of req type at req position
+	7. drop_head(list)       			-  drop head node
+	8. drop_tail(list)       			-  drop tail node
+	9. drop(list, position)       		-  drop node at req position
+	10. list_disp(list, nodePrinter)	-  display length of the list (nodePrinter callback, uesr should pass a print function for their type)
+	11. list_length(list)				-  return no. of nodes (return type => long)
+	12. chain(list1, list2)				-  concatenate two lists; returns a list
+	13. list_to_array(list)				-  convert list -> array
+	14. list_search(list, value, hc)	-  return position of a value (return type => long)
+	15. list_reverse(list)				-  reverse the list in place
+	16. free_ds(list)					-  free memory allocated to the list
+
+Sample Code 1:
+
+List_declare(int);
+int main() {
+	List(int) l1 = new_List(int);
+	insert_head(l1, 1);
+	insert_tail(l1, 2;
+	insert(l1, 3, 1);
+	replace(l1, 4, 1);
+	list_disp(l1,NULL);
+	List(int) l2 = new_List(int);
+	printf(chain(l1, l2));
+	drop_head(l1)l
+	drop_tail(l1);
+	free_ds(l1);
+	free_ds(l2);
+}
+
+Sample code 2:
+
+	typedef struct Pokemon
+	{		
+		int dexId;
+		char* name;
+		double age;
+		int level;
+	}Pokemon;
+
+	void pkmn_printer(Pokemon* p)
+	{
+		printf("{ Name:%s Age:%lf Level:%d } ",p->name,p->age,p->level);
+	}
+	
+	list_disp(my_favorite,pkmn_printer);
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+Note:
+	List_declare, Set_declare and Dict_declare functions should be in global space(not in main function).
+	
+	pointers -> typedef to remove * , a few of them are already provided by the library
+	
+	The following types are aliases for types with * or space within their name-
+	char* => charp ;
+	int* => intp;
+	double* => doublep;
+	float* => floatp;
+	long* => longp;
+	long long => long_long;
+	long double => long_double;
+	short int => short_int;
+	
+	For user-defined types, user must typedef their type with a '*' if they want to pass a pointer (example: typedef apple* apple_ptr where apple is a structure )
+
+	Common mistakes:
+	Multiple variable declaration of any DS in a single line requires explicit pointer symbol * . (i.e. List(int) a,*b,*c); 
+	Recommended usuage: declare one variable in one line.
